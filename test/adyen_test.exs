@@ -63,4 +63,17 @@ defmodule AdyenTest do
   test "it needs at last an amount in cents" do
     assert {:error, [amount_in_cents: "can't be blank"]} = Adyen.request_payment(%{})
   end
+
+  test "hmac authenticity" do
+    #these parameters came from a return url after payment has been done.
+    assert %{
+      "authResult" => "AUTHORISED",
+      "merchantReference" => "25ddeb63-f693-45f2-b07e-6f71b041c8cc",
+      "merchantSig" => "tNMZpG8zkwTsB0yhvArhIO+Q1raEC/9+zBp25kX/sT0=",
+      "paymentMethod" => "ideal",
+      "pspReference" => "8815057372964667",
+      "shopperLocale" => "en_GB",
+      "skinCode" => "Y5mxfUVI"
+    } |> Adyen.Client.Hmac.authentic_response?
+  end
 end

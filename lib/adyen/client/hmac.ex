@@ -12,6 +12,13 @@ defmodule Adyen.Client.Hmac do
     Map.put(params, "merchantSig", hmac)
   end
 
+  def authentic_response?(%{"merchantSig" => signature} = map) do
+    signature == map
+    |> Map.delete("merchantSig")
+    |> sign
+    |> Map.get("merchantSig")
+  end
+
   @spec generate!(params :: map) :: String.t
   defp generate!(params) do
     hex_hmac_crypto_key = System.get_env("ADYEN_HMAC_KEY") || Application.get_env(:adyen, :hmac_key)
@@ -53,10 +60,14 @@ defmodule Adyen.Client.Hmac do
   # Then this function will turn that into:
   #
   #   "baz:foo:quux:bar"
-  @spec concatenate_contents(contents :: map) :: String.t
-  defp concatenate_contents(contents) do
-    sorted_keys = Enum.sort(Map.keys(contents))
-    values_for_sorted_keys = Enum.into(sorted_keys, [], fn key -> Map.fetch!(contents, key) end)
+  @spec concatenate_contents(map) :: String.t
+  defp concatenate_contents(map) do
+    sorted_keys = map
+                  |> Map.keys
+                  |> Enum.sort
+
+    values_for_sorted_keys = Enum.into(sorted_keys, [], &(Map.fetch!(map, &1)))
     "#{Enum.join(sorted_keys, ":")}:#{Enum.join(values_for_sorted_keys, ":")}"
   end
+
 end

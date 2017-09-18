@@ -24,7 +24,6 @@ defmodule Adyen.BanksCache do
     end
   end
 
-
   def handle_call({:get_banks}, _from, state) do
     if state.hot_cache do
       {:reply, {:ok, state.cache}, state}
