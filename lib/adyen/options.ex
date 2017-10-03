@@ -175,15 +175,15 @@ defmodule Adyen.Options do
     changeset
     |> validate_required(
          :merchant_account,
-         message: ~s[has not been set, either pass it along with the params in this function as :merchant_account, alternatively you can pass it by defining an env var 'ADYEN_MERCHANT_ACCOUNT=my_merchant_account' or in you config add 'config :adyen, merchant_account: "my_marchant_account"']
+         message: ~s[has not been set, either pass it along with the params in this function as :merchant_account, alternatively you can pass it by defining an env var 'ADYEN_MERCHANT_ACCOUNT=my_merchant_account' or in your config add 'config :adyen, merchant_account: "my_marchant_account"']
        )
     |> validate_required(
          :skin_code,
-         message: ~s[has not been set, either pass it along with the params in this function as :skin_code, alternatively you can pass it by defining an env var 'ADYEN_SKIN_CODE=my_skin_code' or in you config add 'config :adyen, skin_code: "my_skin_code"']
+         message: ~s[has not been set, either pass it along with the params in this function as :skin_code, alternatively you can pass it by defining an env var 'ADYEN_SKIN_CODE=my_skin_code' or in your config add 'config :adyen, skin_code: "my_skin_code"']
        )
     |> validate_required(
          :hmac_key,
-         message: ~s[has not been set, either pass it along with the params in this function as :hmac, alternatively you can pass it by defining an env var 'ADYEN_HMAC_KEY=my_hmac_key' or in you config add 'config :adyen, hmac_key: "my_hmac_key"']
+         message: ~s[has not been set, either pass it along with the params in this function as :hmac, alternatively you can pass it by defining an env var 'ADYEN_HMAC_KEY=my_hmac_key' or in your config add 'config :adyen, hmac_key: "my_hmac_key"']
        )
   end
 end

@@ -162,7 +162,7 @@ defmodule Adyen.PaymentNotification do
     "success" => :success,
     "value" => :amount_in_cents
   }
-
+  @spec parse(map) :: {:ok, %Adyen.PaymentNotification{}} | {:error, list}
   def parse(params \\ %{}) do
     changeset = %Adyen.PaymentNotification{}
     |> cast(map_params(params), @required_fields ++ @optional_fields)
@@ -177,12 +177,14 @@ defmodule Adyen.PaymentNotification do
     end
   end
 
+  @spec map_params(map) :: map
   defp map_params(params) do
     params
     |> Enum.map(fn {k, v} -> {Map.get(@mapping, k), normalize_value(v)} end)
     |> Enum.into(%{})
   end
 
+  @spec normalize_value(String.t | any) :: boolean | any
   defp normalize_value("true"), do: true
   defp normalize_value("false"), do: false
   defp normalize_value("1"), do: true
