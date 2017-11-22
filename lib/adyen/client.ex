@@ -10,7 +10,7 @@ defmodule Adyen.Client do
   middleware Maxwell.Middleware.Headers, %{"content-type" => "application/json; charset=utf-8"}
   middleware Maxwell.Middleware.Opts, connect_timeout: 3000
   middleware Maxwell.Middleware.Json
-  middleware Maxwell.Middleware.Logger
+  #  middleware Maxwell.Middleware.Logger
 
   adapter Maxwell.Adapter.Hackney
 
@@ -23,6 +23,17 @@ defmodule Adyen.Client do
   end
   def request_payment(%Adyen.Options{} = options) do
     {:ok, "https://test.adyen.com/hpp/pay.shtml?" <> Adyen.Options.to_query_string(options)}
+  end
+
+  def sepa(%Adyen.Options.Sepa{} = sepa_options) do
+    json = Adyen.Options.Sepa.to_post_map(sepa_options)
+    "https://pal-test.adyen.com/pal/servlet/Payment/v30/authorise"
+    |> new
+    |> put_req_body(json)
+    |> put_req_header("Content-Type", "application/json")
+    |> put_req_header("Authorization", "Basic #{basic_auth(sepa_options)}")
+    |> post
+    |> process_response
   end
 
   @doc """
@@ -69,5 +80,9 @@ defmodule Adyen.Client do
 
   defp normalize_issuer_entry(%{"issuerId" => issuer_id, "name" => name}) do
     %{issuer_id: String.to_integer(issuer_id), name: name}
+  end
+
+  defp basic_auth(sepa_options) do
+    Base.encode64("#{sepa_options.basic_auth_username}:#{sepa_options.basic_auth_password}")
   end
 end
