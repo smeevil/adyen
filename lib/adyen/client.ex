@@ -85,4 +85,5 @@ defmodule Adyen.Client do
   defp basic_auth(sepa_options) do
     Base.encode64("#{sepa_options.basic_auth_username}:#{sepa_options.basic_auth_password}")
   end
+
 end

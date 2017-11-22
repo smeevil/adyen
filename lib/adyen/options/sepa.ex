@@ -58,7 +58,6 @@ defmodule Adyen.Options.Sepa do
   @spec changeset(struct :: %Adyen.Options.Sepa{}, params :: map) :: Ecto.Changeset.t
   defp changeset(struct, params) do
     params = add_defaults(params)
-    IO.puts "params now #{inspect params}"
     struct
     |> cast(params, @required_fields ++ @optional_fields)
     |> validate_required_config_settings
