@@ -67,7 +67,13 @@ defmodule Adyen.Client do
   defp process_response({:error, _} = error), do: error
 
   @spec parse_issuers({:ok, data :: map} | any) :: {:ok, map} | any
-  defp parse_issuers({:ok, data}) do
+  defp parse_issuers({:ok, data}) when is_binary(data) do
+    case Regex.named_captures(~r/Error:\s(?<error>.*)/, data) do
+      %{"error" => message} -> {:error, clean_html_string(message)}
+      _ -> {:error, data}
+    end
+  end
+  defp parse_issuers({:ok, data}) when is_map(data) do
     issuers = data
               |> Map.get("paymentMethods")
               |> List.first
@@ -86,4 +92,11 @@ defmodule Adyen.Client do
     Base.encode64("#{sepa_options.basic_auth_username}:#{sepa_options.basic_auth_password}")
   end
 
+  defp clean_html_string(string) do
+    string
+    |> String.replace("&lt;", "", global: true)
+    |> String.replace("&gt;", "", global: true)
+    |> String.replace("<br />", "", global: true)
+    |> String.replace("br /", " ", global: true)
+  end
 end
