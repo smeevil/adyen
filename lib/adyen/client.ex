@@ -49,6 +49,7 @@ defmodule Adyen.Client do
     |> new
     |> get
     |> process_response
+    |> IO.inspect(label: "adyen response for banks")
     |> parse_issuers
   end
   # FIXME there is a bug in MAXWELL apparently that when the path contains an extention, it does not use the base url
