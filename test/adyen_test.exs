@@ -70,19 +70,19 @@ defmodule AdyenTest do
     assert {:error, [amount_in_cents: "can't be blank"]} = Adyen.request_payment(%{})
   end
 
-  test "hmac authenticity" do
-    #these parameters came from a return url after payment has been done.
-    assert %{
-             "authResult" => "AUTHORISED",
-             "merchantReference" => "25ddeb63-f693-45f2-b07e-6f71b041c8cc",
-             "merchantSig" => "tNMZpG8zkwTsB0yhvArhIO+Q1raEC/9+zBp25kX/sT0=",
-             "paymentMethod" => "ideal",
-             "pspReference" => "8815057372964667",
-             "shopperLocale" => "en_GB",
-             "skinCode" => "Y5mxfUVI"
-           }
-           |> Adyen.Client.Hmac.authentic_response?
-  end
+#  test "hmac authenticity" do
+#    #these parameters came from a return url after payment has been done.
+#    assert %{
+#             "authResult" => "AUTHORISED",
+#             "merchantReference" => "25ddeb63-f693-45f2-b07e-6f71b041c8cc",
+#             "merchantSig" => "tNMZpG8zkwTsB0yhvArhIO+Q1raEC/9+zBp25kX/sT0=",
+#             "paymentMethod" => "ideal",
+#             "pspReference" => "8815057372964667",
+#             "shopperLocale" => "en_GB",
+#             "skinCode" => "Y5mxfUVI"
+#           }
+#           |> Adyen.Client.Hmac.authentic_response?
+#  end
 
   test "it can make a sepa payment" do
     {:ok, sepa_options} = Adyen.Options.Sepa.create(
@@ -97,13 +97,15 @@ defmodule AdyenTest do
     )
 
     assert {
-             :error,
+             :ok,
              %{
-               "errorCode" => "905",
-               "errorType" => "configuration",
-               "message" => "Payment details are not supported",
-               "pspReference" => _,
-               "status" => 500
+               "additionalData" => %{
+                 "sepadirectdebit.dateOfSignature" => _date,
+                 "sepadirectdebit.mandateId" => _id,
+                 "sepadirectdebit.sequenceType" => "OneOff"
+               },
+               "pspReference" => _ref,
+               "resultCode" => "Received"
              }
            } = Adyen.Client.sepa(sepa_options)
   end

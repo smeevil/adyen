@@ -39,8 +39,8 @@ defmodule Adyen.Options.SepaTest do
                 iban: "NL13TEST0123456789",
                 ownerName: "Test User"
               },
-              merchantAccount: "BondsPlatform",
-              reference: _,
+              merchantAccount: "MijndomeinVPSShop",
+              reference: _ref,
               selectedBrand: "sepadirectdebit",
               shopperEmail: "shopper@example.com",
               shopperIP: "127.0.0.1",
