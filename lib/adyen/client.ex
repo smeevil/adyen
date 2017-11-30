@@ -43,13 +43,12 @@ defmodule Adyen.Client do
   """
   @spec get_banks :: {:ok, map} | {:error, any}
   def get_banks do
-    {:ok, options} = Adyen.Options.credentials(amount_in_cents: 0)
+    {:ok, options} = Adyen.Options.credentials(amount_in_cents: 100)
     query_string = Adyen.Options.to_query_string(options)
     "https://test.adyen.com/hpp/directory/v2.shtml?#{query_string}"
     |> new
     |> get
     |> process_response
-    |> IO.inspect(label: "adyen response for banks")
     |> parse_issuers
   end
   # FIXME there is a bug in MAXWELL apparently that when the path contains an extention, it does not use the base url
@@ -75,13 +74,16 @@ defmodule Adyen.Client do
     end
   end
   defp parse_issuers({:ok, data}) when is_map(data) do
-    issuers = data
-              |> Map.get("paymentMethods")
-              |> List.first
-              |> Map.get("issuers")
-              |> Enum.map(&normalize_issuer_entry/1)
 
-    {:ok, issuers}
+    case get_ideal_entry(data) do
+      {:ok, entry} ->
+        issuers = entry
+                  |> Map.get("issuers")
+                  |> Enum.map(&normalize_issuer_entry/1)
+
+        {:ok, issuers}
+      error -> error
+    end
   end
   defp parse_issuers(error), do: error
 
@@ -99,5 +101,15 @@ defmodule Adyen.Client do
     |> String.replace("&gt;", "", global: true)
     |> String.replace("<br />", "", global: true)
     |> String.replace("br /", " ", global: true)
+  end
+
+  defp get_ideal_entry(data) do
+    ideal = data
+            |> Map.get("paymentMethods")
+            |> Enum.find(fn entry -> entry["brandCode"] == "ideal" end)
+    case ideal do
+      nil -> {:error, :ideal_entry_not_found}
+      entry -> {:ok, entry}
+    end
   end
 end
