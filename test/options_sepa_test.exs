@@ -7,7 +7,8 @@ defmodule Adyen.Options.SepaTest do
     iban: "NL13TEST0123456789",
     owner: "Test User",
     remote_ip: "127.0.0.1",
-    statement: "Order of Test Item"
+    statement: "Order of Test Item",
+    recurring: true
   }
 
   test "it can create a changeset with errors" do
@@ -18,7 +19,8 @@ defmodule Adyen.Options.SepaTest do
                iban: "can't be blank",
                owner: "can't be blank",
                remote_ip: "can't be blank",
-               statement: "can't be blank"
+               statement: "can't be blank",
+               recurring: "can't be blank"
              ]
            } == Adyen.Options.Sepa.create()
   end
@@ -40,12 +42,14 @@ defmodule Adyen.Options.SepaTest do
                 ownerName: "Test User"
               },
               merchantAccount: "MijndomeinVPSShop",
-              reference: _ref,
+              reference: ref1,
+              selectedRecurringDetailReference: ref2,
               selectedBrand: "sepadirectdebit",
               shopperEmail: "shopper@example.com",
               shopperIP: "127.0.0.1",
               shopperStatement: "Order of Test Item"
             } = Adyen.Options.Sepa.to_post_map(sepa_options)
+    assert ref1 == ref2
   end
 
 

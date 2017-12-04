@@ -2,7 +2,6 @@ defmodule Adyen do
   @moduledoc """
   This modile will wrap all implemented functions for adyen
   """
-
   def request_payment(params) do
     case Adyen.Options.create(params) do
       {:ok, options} -> Adyen.Client.request_payment(options)

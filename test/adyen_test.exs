@@ -92,7 +92,8 @@ defmodule AdyenTest do
         iban: "NL13TEST0123456789",
         owner: "Test User",
         remote_ip: "127.0.0.1",
-        statement: "Order of Test Item"
+        statement: "Order of Test Item",
+        recurring: true
       }
     )
 

@@ -22,6 +22,7 @@ defmodule Adyen.Options.Sepa do
     field :reference, :string
     field :remote_ip, :string
     field :statement, :string
+    field :recurring, :boolean
   end
 
   @required_fields [
@@ -37,6 +38,7 @@ defmodule Adyen.Options.Sepa do
     :reference,
     :remote_ip,
     :statement,
+    :recurring
   ]
 
   @optional_fields [:email]
@@ -70,7 +72,7 @@ defmodule Adyen.Options.Sepa do
   """
   @spec to_post_map(options :: %Adyen.Options.Sepa{}) :: map
   def to_post_map(%Adyen.Options.Sepa{} = options) do
-      %{
+      post_map = %{
         bankAccount: %{
           iban: options.iban,
           ownerName: options.owner,
@@ -87,6 +89,7 @@ defmodule Adyen.Options.Sepa do
         shopperStatement: options.statement,
         selectedBrand: options.method
       }
+      if options.recurring, do:  Map.put(post_map, :selectedRecurringDetailReference, options.reference), else: post_map
   end
 
   @spec add_defaults(params :: map) :: map
