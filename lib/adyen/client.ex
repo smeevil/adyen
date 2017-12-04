@@ -34,6 +34,7 @@ defmodule Adyen.Client do
     |> put_req_header("Authorization", "Basic #{basic_auth(sepa_options)}")
     |> post
     |> process_response
+    |> Adyen.SepaResponse.parse
   end
 
   @doc """
