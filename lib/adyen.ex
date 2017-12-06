@@ -19,6 +19,14 @@ defmodule Adyen do
     end
   end
 
+  def direct_sepa_capture(params) do
+    with {:ok, request_response} <- Adyen.request_sepa_capture(params),
+         {:ok, reference} <- Adyen.capture_payment(request_response)
+      do
+      {:ok, reference}
+    end
+  end
+
   def banks, do: GenServer.call(Adyen.BanksCache, {:get_banks})
   def issuer_ids, do: GenServer.call(Adyen.BanksCache, {:get_issuer_ids})
 

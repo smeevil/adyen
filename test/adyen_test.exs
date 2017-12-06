@@ -147,4 +147,16 @@ defmodule AdyenTest do
 
     assert {:ok, _ref, } = Adyen.capture_payment(request_response)
   end
+
+  test "it can make an direct capture via sepa" do
+    assert {:ok, 8515125563223673} == Adyen.direct_sepa_capture(%{
+            amount_in_cents: 100,
+            email: "shopper@example.com",
+            iban: "NL13TEST0123456789",
+            owner: "Test User",
+            remote_ip: "127.0.0.1",
+            statement: "Order of Test Item",
+            recurring: true
+          })
+  end
 end
