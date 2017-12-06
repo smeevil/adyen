@@ -70,16 +70,16 @@ iex> Adyen.issuer_ids
 To request a payment and let the user pick a bank at adyen's page:
 
 ```elixir
-iex> Adyen.request_payment(amount_in_cents: 10000)
+iex> Adyen.request_capture(amount_in_cents: 10000)
 {:ok, "https://test.adyen.com/hpp/pay.shtml?brandCode=ideal&currencyCode=EUR&merchantAccount=BondsPlatform&merchantReference=64b6785d-3bfc-4df5-98f4-9ee6c122e48a&merchantSig=wtrHpjhykN5lIBkMKscOh6%2BgBJbJTtHRQGGJF86oZbw%3D&paymentAmount=10000&sessionValidity=2017-10-03T13%3A30%3A18%2B00%3A00&skinCode=Y5mxfUVI"}
 ```
 
 To request a payment with a pre-picked bank:
 ```elixir
-iex> Adyen.request_payment(amount_in_cents: 10000, issuer_id: 1121)
+iex> Adyen.request_capture(amount_in_cents: 10000, issuer_id: 1121)
 {:ok, "https://test.adyen.com/hpp/skipDetails.shtml?brandCode=ideal&currencyCode=EUR&issuerId=1121&merchantAccount=BondsPlatform&merchantReference=08b69494-97fa-41c2-a637-fcdebf53bf55&merchantSig=1B6ahlrK7nQc11oQxy9w2FU9N8HPRJL1YezDDxP5BZg%3D&paymentAmount=10000&sessionValidity=2017-10-03T13%3A32%3A07%2B00%3A00&skinCode=Y5mxfUVI"}
 ```
 
 Take note, by default the payment method selected is Ideal and the
 currency is set to EUR. You can change these settings while making the
-Adyen.request_payment/1 call. See Adyen.Options for all possible options.
+Adyen.request_capture/1 call. See Adyen.Options for all possible options.

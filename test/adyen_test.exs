@@ -1,6 +1,5 @@
 defmodule AdyenTest do
   use ExUnit.Case
-  doctest Adyen
 
   test "it returns a list of banks" do
     assert {
@@ -48,7 +47,7 @@ defmodule AdyenTest do
     assert {
              :ok,
              "https://test.adyen.com/hpp/pay.shtml?brandCode=ideal&currencyCode=EUR" <> _rest
-           } = Adyen.request_payment(amount_in_cents: 10000)
+           } = Adyen.request_capture(amount_in_cents: 10000)
   end
 
   test "it returns a redirect url to adyen with a preselected bank" do
@@ -56,36 +55,85 @@ defmodule AdyenTest do
              :ok,
              "https://test.adyen.com/hpp/skipDetails.shtml?brandCode=ideal&currencyCode=EUR&issuerId=1151" <> _rest
            }
-           = Adyen.request_payment(amount_in_cents: 10000, issuer_id: 1151)
+           = Adyen.request_capture(amount_in_cents: 10000, issuer_id: 1151)
   end
 
   test "it returns a redirect url to adyen for a SEPA payment" do
     assert {
              :ok,
              "https://test.adyen.com/hpp/pay.shtml?brandCode=sepadirectdebit&currencyCode=EUR" <> _rest
-           } = Adyen.request_payment(amount_in_cents: 10000, method: "sepadirectdebit")
+           } = Adyen.request_capture(amount_in_cents: 10000, method: "sepadirectdebit")
   end
 
   test "it needs at last an amount in cents" do
-    assert {:error, [amount_in_cents: "can't be blank"]} = Adyen.request_payment(%{})
+    assert {:error, [amount_in_cents: "can't be blank"]} = Adyen.request_capture(%{})
   end
 
-  #  test "hmac authenticity" do
-  #    #these parameters came from a return url after payment has been done.
-  #    assert %{
-  #             "authResult" => "AUTHORISED",
-  #             "merchantReference" => "25ddeb63-f693-45f2-b07e-6f71b041c8cc",
-  #             "merchantSig" => "tNMZpG8zkwTsB0yhvArhIO+Q1raEC/9+zBp25kX/sT0=",
-  #             "paymentMethod" => "ideal",
-  #             "pspReference" => "8815057372964667",
-  #             "shopperLocale" => "en_GB",
-  #             "skinCode" => "Y5mxfUVI"
-  #           }
-  #           |> Adyen.Client.Hmac.authentic_response?
-  #  end
+  #    FIXME outdated info, need a new map to verify
+  #    test "hmac authenticVity" do
+  #      #these parameters came from a return url after payment has been done.
+  #      assert %{
+  #               "authResult" => "AUTHORISED",
+  #               "merchantReference" => "25ddeb63-f693-45f2-b07e-6f71b041c8cc",
+  #               "merchantSig" => "tNMZpG8zkwTsB0yhvArhIO+Q1raEC/9+zBp25kX/sT0=",
+  #               "paymentMethod" => "ideal",
+  #               "pspReference" => "8815057372964667",
+  #               "shopperLocale" => "en_GB",
+  #               "skinCode" => "Y5mxfUVI"
+  #             }
+  #             |> Adyen.Client.Hmac.authentic_response?
+  #    end
 
   test "it can make a sepa payment" do
-    {:ok, sepa_options} = Adyen.Options.Sepa.create(
+    assert {
+             :ok,
+             %Adyen.CaptureRequestResponse{
+               capture_info: %{
+                 account: _account,
+                 amount: %{
+                   currency: "EUR",
+                   value: 100
+                 },
+                 basic_auth_password: _password,
+                 basic_auth_username: _username,
+                 original_reference: _ref1
+               },
+               mandate_id: _ref2,
+               reference: _ref3,
+               result: "Received",
+               sequence_type: "OneOff",
+               signed_at: %Date{}
+             }
+           } = Adyen.request_sepa_capture(
+             %{
+               amount_in_cents: 100,
+               email: "shopper@example.com",
+               iban: "NL13TEST0123456789",
+               owner: "Test User",
+               remote_ip: "127.0.0.1",
+               statement: "Order of Test Item",
+               recurring: true
+             }
+           )
+  end
+
+  test "it can handle a sepa payment error" do
+    assert {
+             :error,
+             [
+               amount_in_cents: "can't be blank",
+               iban: "can't be blank",
+               owner: "can't be blank",
+               remote_ip: "can't be blank",
+               statement: "can't be blank",
+               recurring: "can't be blank"
+             ]
+           } == Adyen.request_sepa_capture(%{})
+  end
+
+  test "it can capture a payment" do
+
+    {:ok, %Adyen.CaptureRequestResponse{} = request_response} = Adyen.request_sepa_capture(
       %{
         amount_in_cents: 100,
         email: "shopper@example.com",
@@ -97,15 +145,6 @@ defmodule AdyenTest do
       }
     )
 
-    assert {
-             :ok,
-             %Adyen.SepaResponse{
-               mandate_id: _id, #8815123802854181
-               reference: _ref, #8815123802854181,
-               result: "Received",
-               sequence_type: "OneOff",
-               signed_at: ~D[2017-12-04]
-             }
-           } = Adyen.Client.sepa(sepa_options)
+    assert {:ok, _ref, } = Adyen.capture_payment(request_response)
   end
 end

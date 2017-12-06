@@ -1,4 +1,4 @@
-defmodule Adyen.Options.SepaTest do
+defmodule Adyen.Options.SepaOptionsTest do
   use ExUnit.Case
 
   @valid_params %{
@@ -22,15 +22,15 @@ defmodule Adyen.Options.SepaTest do
                statement: "can't be blank",
                recurring: "can't be blank"
              ]
-           } == Adyen.Options.Sepa.create()
+           } == Adyen.Options.SepaOptions.create()
   end
 
   test "it can create a changeset" do
-    assert {:ok, %Adyen.Options.Sepa{}} = Adyen.Options.Sepa.create(@valid_params)
+    assert {:ok, %Adyen.Options.SepaOptions{}} = Adyen.Options.SepaOptions.create(@valid_params)
   end
 
   test "it can convert options to json" do
-    {:ok, sepa_options} = Adyen.Options.Sepa.create(@valid_params)
+    {:ok, sepa_options} = Adyen.Options.SepaOptions.create(@valid_params)
     assert  %{
               amount: %{
                 currency: "EUR",
@@ -48,7 +48,7 @@ defmodule Adyen.Options.SepaTest do
               shopperEmail: "shopper@example.com",
               shopperIP: "127.0.0.1",
               shopperStatement: "Order of Test Item"
-            } = Adyen.Options.Sepa.to_post_map(sepa_options)
+            } = Adyen.Options.SepaOptions.to_post_map(sepa_options)
     assert ref1 == ref2
   end
 

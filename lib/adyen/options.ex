@@ -45,7 +45,8 @@ defmodule Adyen.Options do
     reference: "merchantReference",
     session_validity: "sessionValidity",
     skin_code: "skinCode",
-    return_url: "resURL"
+    return_url: "resURL",
+    hmac_key: "hmacKey"
   ]
 
   #TODO implement these fields

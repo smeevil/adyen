@@ -2,9 +2,19 @@ defmodule Adyen do
   @moduledoc """
   This modile will wrap all implemented functions for adyen
   """
-  def request_payment(params) do
+
+  defdelegate capture_payment(options), to: Adyen.Client
+
+  def request_capture(params) do
     case Adyen.Options.create(params) do
-      {:ok, options} -> Adyen.Client.request_payment(options)
+      {:ok, options} -> Adyen.Client.request_capture(options)
+      error -> error
+    end
+  end
+
+  def request_sepa_capture(params) do
+    case Adyen.Options.SepaOptions.create(params) do
+      {:ok, options} -> Adyen.Client.request_sepa_capture(options)
       error -> error
     end
   end

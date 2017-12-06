@@ -17,16 +17,16 @@ defmodule Adyen.Client do
   @doc"""
   This call will fabricate a redirect url to adyen to which you can send the client to confirm payment.
   """
-  @spec request_payment(options :: %Adyen.Options{}) :: {:ok, String.t}
-  def request_payment(%Adyen.Options{issuer_id: issuer_id, method: "ideal"} = options) when not is_nil(issuer_id) do
+  @spec request_capture(options :: %Adyen.Options{}) :: {:ok, String.t}
+  def request_capture(%Adyen.Options{issuer_id: issuer_id, method: "ideal"} = options) when not is_nil(issuer_id) do
     {:ok, "https://test.adyen.com/hpp/skipDetails.shtml?" <> Adyen.Options.to_query_string(options)}
   end
-  def request_payment(%Adyen.Options{} = options) do
+  def request_capture(%Adyen.Options{} = options) do
     {:ok, "https://test.adyen.com/hpp/pay.shtml?" <> Adyen.Options.to_query_string(options)}
   end
 
-  def sepa(%Adyen.Options.Sepa{} = sepa_options) do
-    json = Adyen.Options.Sepa.to_post_map(sepa_options)
+  def request_sepa_capture(%Adyen.Options.SepaOptions{} = sepa_options) do
+    json = Adyen.Options.SepaOptions.to_post_map(sepa_options)
     "https://pal-test.adyen.com/pal/servlet/Payment/v30/authorise"
     |> new
     |> put_req_body(json)
@@ -34,7 +34,24 @@ defmodule Adyen.Client do
     |> put_req_header("Authorization", "Basic #{basic_auth(sepa_options)}")
     |> post
     |> process_response
-    |> Adyen.SepaResponse.parse
+    |> Adyen.CaptureRequestResponse.parse(sepa_options)
+  end
+
+  def capture_payment(%Adyen.CaptureRequestResponse{capture_info: options}) do
+    "https://pal-test.adyen.com/pal/servlet/Payment/v30/capture"
+    |> new
+    |> put_req_body(
+         %{
+           merchantAccount: options.account,
+           modificationAmount: options.amount,
+           originalReference: options.original_reference
+         }
+       )
+    |> put_req_header("Authorization", "Basic #{basic_auth(options)}")
+    |> put_req_header("Content-Type", "application/json")
+    |> post
+    |> process_response
+    |> parse_sepa_capture_response
   end
 
   @doc """
@@ -113,4 +130,8 @@ defmodule Adyen.Client do
       entry -> {:ok, entry}
     end
   end
+
+  def parse_sepa_capture_response({:ok, %{"pspReference" => reference, "response" => "[capture-received]"}}),
+      do: {:ok, String.to_integer(reference)}
+  def parse_sepa_capture_response({_, data}), do: {:error, data}
 end

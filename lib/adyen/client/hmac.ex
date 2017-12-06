@@ -8,8 +8,10 @@ defmodule Adyen.Client.Hmac do
   """
   @spec sign(params :: map) :: map
   def sign(params) when is_map(params) do
-    hmac = generate!(params)
-    Map.put(params, "merchantSig", hmac)
+    hmac_key = Map.get(params, "hmacKey")
+    params_to_sign = Map.delete(params, "hmacKey")
+    hmac = generate!(params_to_sign, hmac_key)
+    Map.put(params_to_sign, "merchantSig", hmac)
   end
 
   def authentic_response?(%{"merchantSig" => signature} = map) do
@@ -19,9 +21,8 @@ defmodule Adyen.Client.Hmac do
     |> Map.get("merchantSig")
   end
 
-  @spec generate!(params :: map) :: String.t
-  defp generate!(params) do
-    hex_hmac_crypto_key = System.get_env("ADYEN_HMAC_KEY") || Application.get_env(:adyen, :hmac_key)
+  @spec generate!(params :: map, hex_hmac_crypto_key :: binary) :: String.t
+  defp generate!(params, hex_hmac_crypto_key) do
     binary_hmac_crypto_key = Base.decode16!(hex_hmac_crypto_key)
     content_to_hmac = generate_hmac_content_key(params)
 

@@ -1,5 +1,5 @@
 #https://docs.adyen.com/developers/api-reference/hosted-payment-pages-api#hpppaymentrequest
-defmodule Adyen.Options.Sepa do
+defmodule Adyen.Options.SepaOptions do
   @moduledoc """
   This module will validate and format all options that can be passed to adyen
   """
@@ -45,19 +45,19 @@ defmodule Adyen.Options.Sepa do
 
 
   @doc """
-  Use this to create the Adyen.Options.Sepa struct which will validate all parameters given.
+  Use this to create the Adyen.Options.SepaOptions struct which will validate all parameters given.
   """
   @spec create(params :: map | list) :: {:ok, %Adyen.Options{}} | {:error, Ecto.Changeset.t}
   def create(params \\ %{})
   def create(params) when is_list(params), do: create(Enum.into(params, %{}))
   def create(params) do
-    case changeset(%Adyen.Options.Sepa{}, params) do
+    case changeset(%Adyen.Options.SepaOptions{}, params) do
       %{valid?: true} = changeset -> {:ok, Ecto.Changeset.apply_changes(changeset)}
       changeset -> {:error, Enum.map(changeset.errors, fn ({field, {msg, _}}) -> {field, msg} end)}
     end
   end
 
-  @spec changeset(struct :: %Adyen.Options.Sepa{}, params :: map) :: Ecto.Changeset.t
+  @spec changeset(struct :: %Adyen.Options.SepaOptions{}, params :: map) :: Ecto.Changeset.t
   defp changeset(struct, params) do
     params = add_defaults(params)
     struct
@@ -70,8 +70,8 @@ defmodule Adyen.Options.Sepa do
   @doc """
   Will convert the Adyen.Options struct to a map which can then be submitted through http post
   """
-  @spec to_post_map(options :: %Adyen.Options.Sepa{}) :: map
-  def to_post_map(%Adyen.Options.Sepa{} = options) do
+  @spec to_post_map(options :: %Adyen.Options.SepaOptions{}) :: map
+  def to_post_map(%Adyen.Options.SepaOptions{} = options) do
       post_map = %{
         bankAccount: %{
           iban: options.iban,
