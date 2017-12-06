@@ -43,7 +43,6 @@ defmodule Adyen.Options.SepaOptions do
 
   @optional_fields [:email]
 
-
   @doc """
   Use this to create the Adyen.Options.SepaOptions struct which will validate all parameters given.
   """

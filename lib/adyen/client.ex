@@ -96,7 +96,7 @@ defmodule Adyen.Client do
     case get_ideal_entry(data) do
       {:ok, entry} ->
         issuers = entry
-                  |> Map.get("issuers")
+                  |> Map.get("issuers", %{})
                   |> Enum.map(&normalize_issuer_entry/1)
 
         {:ok, issuers}
@@ -108,6 +108,7 @@ defmodule Adyen.Client do
   defp normalize_issuer_entry(%{"issuerId" => issuer_id, "name" => name}) do
     %{issuer_id: String.to_integer(issuer_id), name: name}
   end
+  defp normalize_issuer_entry(entry), do: entry
 
   defp basic_auth(sepa_options) do
     Base.encode64("#{sepa_options.basic_auth_username}:#{sepa_options.basic_auth_password}")
@@ -123,7 +124,7 @@ defmodule Adyen.Client do
 
   defp get_ideal_entry(data) do
     ideal = data
-            |> Map.get("paymentMethods")
+            |> Map.get("paymentMethods", [])
             |> Enum.find(fn entry -> entry["brandCode"] == "ideal" end)
     case ideal do
       nil -> {:error, :ideal_entry_not_found}

@@ -6,7 +6,7 @@ defmodule Adyen.BanksCache do
   use GenServer
 
   @spec start_link :: {:ok, pid}
-  def start_link() do
+  def start_link do
     GenServer.start_link(__MODULE__, %{}, [name: __MODULE__])
   end
 
