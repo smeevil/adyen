@@ -84,7 +84,7 @@ defmodule AdyenTest do
   #             |> Adyen.Client.Hmac.authentic_response?
   #    end
 
-  test "it can make a sepa payment" do
+  test "it can request a sepa capture" do
     assert {
              :ok,
              %Adyen.CaptureRequestResponse{
@@ -131,7 +131,7 @@ defmodule AdyenTest do
            } == Adyen.request_sepa_capture(%{})
   end
 
-  test "it can capture a payment" do
+  test "it can capture a sepa payment" do
 
     {:ok, %Adyen.CaptureRequestResponse{} = request_response} = Adyen.request_sepa_capture(
       %{
