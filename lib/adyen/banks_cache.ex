@@ -56,6 +56,7 @@ defmodule Adyen.BanksCache do
   @spec get_banks :: {:ok, map} | {:error, any()}
   defp get_banks, do: Adyen.Client.get_banks
 
+  @spec get_issuer_ids(list) :: list
   defp get_issuer_ids(data) do
     Enum.map(data, &(&1.issuer_id))
   end

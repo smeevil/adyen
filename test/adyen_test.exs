@@ -47,7 +47,7 @@ defmodule AdyenTest do
     assert {
              :ok,
              "https://test.adyen.com/hpp/pay.shtml?brandCode=ideal&currencyCode=EUR" <> _rest
-           } = Adyen.request_capture(amount_in_cents: 10000)
+           } = Adyen.request_redirect_url(amount_in_cents: 10000)
   end
 
   test "it returns a redirect url to adyen with a preselected bank" do
@@ -55,18 +55,18 @@ defmodule AdyenTest do
              :ok,
              "https://test.adyen.com/hpp/skipDetails.shtml?brandCode=ideal&currencyCode=EUR&issuerId=1151" <> _rest
            }
-           = Adyen.request_capture(amount_in_cents: 10000, issuer_id: 1151)
+           = Adyen.request_redirect_url(amount_in_cents: 10000, issuer_id: 1151)
   end
 
   test "it returns a redirect url to adyen for a SEPA payment" do
     assert {
              :ok,
              "https://test.adyen.com/hpp/pay.shtml?brandCode=sepadirectdebit&currencyCode=EUR" <> _rest
-           } = Adyen.request_capture(amount_in_cents: 10000, method: "sepadirectdebit")
+           } = Adyen.request_redirect_url(amount_in_cents: 10000, method: "sepadirectdebit")
   end
 
   test "it needs at last an amount in cents" do
-    assert {:error, [amount_in_cents: "can't be blank"]} = Adyen.request_capture(%{})
+    assert {:error, [amount_in_cents: "can't be blank"]} = Adyen.request_redirect_url(%{})
   end
 
   #    FIXME outdated info, need a new map to verify
@@ -149,7 +149,7 @@ defmodule AdyenTest do
   end
 
   test "it can make an direct capture via sepa" do
-    assert {:ok, 8515125563223673} == Adyen.direct_sepa_capture(%{
+    assert {:ok, _ref} = Adyen.direct_sepa_capture(%{
             amount_in_cents: 100,
             email: "shopper@example.com",
             iban: "NL13TEST0123456789",
