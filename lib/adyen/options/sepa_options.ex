@@ -64,6 +64,7 @@ defmodule Adyen.Options.SepaOptions do
     |> validate_required_config_settings
     |> validate_required(@required_fields)
     |> validate_number(:amount_in_cents, greater_than_or_equal_to: 0)
+    |> validate_iban
   end
 
   @doc """
@@ -71,24 +72,24 @@ defmodule Adyen.Options.SepaOptions do
   """
   @spec to_post_map(options :: %Adyen.Options.SepaOptions{}) :: map
   def to_post_map(%Adyen.Options.SepaOptions{} = options) do
-      post_map = %{
-        bankAccount: %{
-          iban: options.iban,
-          ownerName: options.owner,
-          countryCode: options.country_iso
-        },
-        amount: %{
-          value: options.amount_in_cents,
-          currency: options.currency
-        },
-        reference: options.reference,
-        merchantAccount: options.merchant_account,
-        shopperEmail: options.email,
-        shopperIP: options.remote_ip,
-        shopperStatement: options.statement,
-        selectedBrand: options.method
-      }
-      if options.recurring, do:  Map.put(post_map, :selectedRecurringDetailReference, options.reference), else: post_map
+    post_map = %{
+      bankAccount: %{
+        iban: options.iban,
+        ownerName: options.owner,
+        countryCode: options.country_iso
+      },
+      amount: %{
+        value: options.amount_in_cents,
+        currency: options.currency
+      },
+      reference: options.reference,
+      merchantAccount: options.merchant_account,
+      shopperEmail: options.email,
+      shopperIP: options.remote_ip,
+      shopperStatement: options.statement,
+      selectedBrand: options.method
+    }
+    if options.recurring, do: Map.put(post_map, :selectedRecurringDetailReference, options.reference), else: post_map
   end
 
   @spec add_defaults(params :: map) :: map
@@ -128,4 +129,19 @@ defmodule Adyen.Options.SepaOptions do
          message: ~s[has not been set, either pass it along with the params in this function as :basic_auth_password, alternatively you can pass it by defining an env var 'ADYEN_BASIC_AUTH_PASSWORD=my_password' or in your config add 'config :adyen, basic_auth_password: "my_password"']
        )
   end
+
+  defp validate_iban(
+         %{
+           changes: %{
+             iban: iban
+           }
+         } = changeset
+       ) do
+    if ExIban.valid?(iban) do
+      changeset
+    else
+      Ecto.Changeset.add_error(changeset, :iban, "is invalid")
+    end
+  end
+  defp validate_iban(changeset), do: changeset
 end

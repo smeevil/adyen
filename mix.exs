@@ -39,6 +39,7 @@ defmodule Adyen.Mixfile do
       {:maxwell, ">= 0.0.0"},
       {:exvcr, ">= 0.0.0", only: [:dev, :test]},
       {:ecto, ">= 0.0.0"},
+      {:exiban, ">= 0.0.0"},
       {:timex, ">= 0.0.0"},
       {:poison, ">= 0.0.0"},
       {:hackney, ">= 0.0.0"},

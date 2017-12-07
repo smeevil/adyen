@@ -132,7 +132,6 @@ defmodule AdyenTest do
   end
 
   test "it can capture a sepa payment" do
-
     {:ok, %Adyen.CaptureRequestResponse{} = request_response} = Adyen.request_sepa_capture(
       %{
         amount_in_cents: 100,
@@ -158,5 +157,18 @@ defmodule AdyenTest do
             statement: "Order of Test Item",
             recurring: true
           })
+  end
+
+
+  test "it can validate ibans" do
+    assert {:error, [iban: "is invalid"]} = Adyen.direct_sepa_capture(%{
+             amount_in_cents: 100,
+             email: "shopper@example.com",
+             iban: "NL01TEST0123456789",
+             owner: "Test User",
+             remote_ip: "127.0.0.1",
+             statement: "Order of Test Item",
+             recurring: true
+           })
   end
 end
